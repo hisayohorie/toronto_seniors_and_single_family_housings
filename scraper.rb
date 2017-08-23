@@ -12,7 +12,8 @@ page = agent.get("https://www.torontohousing.ca/about/our-housing/Pages/Seniors-
 # # Find somehing on the page using css selectors
 # p page.at('div.content')
 page.search("tr").each do |tr|
-  puts tr.search("td").first.text
+  record = {dev_id: tr.search("td").first.text, development_name:tr.search("td")[1].text , address: tr.search("td").last.text}
+  p record
 end
 #
 # # Write out to the sqlite database using scraperwiki library
