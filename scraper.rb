@@ -7,15 +7,28 @@ require 'mechanize'
 agent = Mechanize.new
 #
 # # Read in a page
-page = agent.get("https://www.torontohousing.ca/about/our-housing/Pages/Seniors-and-single-family-homes-(East).aspx")
+page_urls = [
+  "https://www.torontohousing.ca/about/our-housing/Pages/Seniors-and-single-family-homes-(East).aspx",
+  "https://www.torontohousing.ca/about/our-housing/Pages/Seniors-and-single-family-homes-(West).aspx"
+]
+
+page_urls.each do |url|
+  page = agent.get(url)
+  page.search("tr").each_with_index do |tr, index|
+    next if index == 0
+    record = {
+      dev_id: tr.search("td").first.text,
+      development_name:tr.search("td")[1].text,
+      address: tr.search("td").last.text,
+      area: page.at("#pageTitle").text.strip
+    }
+    ScraperWiki.save_sqlite([:dev_id], record)
+  end
+end
 #
 # # Find somehing on the page using css selectors
 # p page.at('div.content')
-page.search("tr").each_with_index do |tr, index|
-  next if index == 0
-  record = {dev_id: tr.search("td").first.text, development_name:tr.search("td")[1].text , address: tr.search("td").last.text}
-  ScraperWiki.save_sqlite([:dev_id], record)
-end
+
 #
 # # Write out to the sqlite database using scraperwiki library
 # ScraperWiki.save_sqlite(["name"], {"name" => "susan", "occupation" => "software developer"})
