@@ -7,10 +7,13 @@ require 'mechanize'
 agent = Mechanize.new
 #
 # # Read in a page
-page_urls = [
-  "https://www.torontohousing.ca/about/our-housing/Pages/Seniors-and-single-family-homes-(East).aspx",
-  "https://www.torontohousing.ca/about/our-housing/Pages/Seniors-and-single-family-homes-(West).aspx"
-]
+base_url = "https://www.torontohousing.ca/about/our-housing/"
+
+base_page = agent.get(base_url)
+
+page_urls = base_page.at("#zz4_RootAspMenu").search("a").map do |a|
+  a.attr("href")
+end
 
 page_urls.each do |url|
   page = agent.get(url)
